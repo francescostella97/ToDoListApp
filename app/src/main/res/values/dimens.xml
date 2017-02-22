@@ -7,5 +7,6 @@
     <dimen name="note_card_margin">12dp</dimen>
     <dimen name="title">22sp</dimen>
     <dimen name="body">16sp</dimen>
+    <dimen name="due_date">12sp</dimen>
     <dimen name="material_component_cards_left_and_right_padding">8dp</dimen>
 </resources>

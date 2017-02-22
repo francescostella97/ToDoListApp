@@ -1,20 +1,46 @@
 package com.example.utente.todolistapp.models;
+import com.example.utente.todolistapp.controllers.Utilities;
 import com.example.utente.todolistapp.models.State;
+
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+
 /**
  * Created by Utente on 20/02/2017.
  */
 
 public class Note {
+    private int id;
+    private static int counter = 0;
     private String title;
     private String creationDate;
     private String lastEditDate;
     private String dueDate;
     private String body;
     private State state;
+    private int color;
+
+    public int getId() {
+        return id;
+    }
 
     public Note(String title, String body){
+        this.id = counter;
+        counter++;
         this.title = title;
         this.body = body;
+        this.state = State.TODO;
+        this.creationDate = Utilities.getCurrentDate();
+        this.color = android.R.color.white;
+    }
+
+    public int getColor() {
+        return color;
+    }
+
+    public void setColor(int color) {
+        this.color = color;
     }
 
     public String getTitle() {
@@ -63,5 +89,16 @@ public class Note {
 
     public void setState(State state) {
         this.state = state;
+    }
+
+    public String toString(){
+        return  "Ref " +id+"\n"+
+                "Title "+title+"\n"+
+                "Description "+body+"\n"+
+                "Created " +creationDate+"\n"+
+                "Edited " +lastEditDate+"\n"+
+                "Due " +dueDate+"\n"+
+                "State " +state+"\n"+
+                "Color "+color+"\n";
     }
 }
