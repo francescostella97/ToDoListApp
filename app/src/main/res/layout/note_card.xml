@@ -1,22 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/layout_note_card"
     android:background="@color/colorIcons"
-    android:layout_margin="10dp"
-    android:padding="@dimen/material_component_cards_left_and_right_padding"
+    android:layout_margin="6dp"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:elevation="8dp">
+    android:elevation="8dp"
+    android:clickable="true">
 
+    <LinearLayout
+        android:weightSum="5"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
     <TextView
         android:textColor="@color/colorPrimaryText"
-        android:textSize="@dimen/title"
         android:padding="10dp"
         android:textStyle="bold"
+        android:textSize="18sp"
         android:text="Title"
         android:id="@+id/title_note"
-        android:layout_width="match_parent"
+        android:layout_weight="4"
+        android:layout_width="0dp"
         android:layout_height="wrap_content" />
+        <Button
+            android:background="@null"
+            android:gravity="center"
+            android:layout_weight="1"
+
+            android:drawableTint="@color/blue"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/special_btn_note" />
+
+    </LinearLayout>
+
 
     <TextView
         android:textColor="@color/colorPrimaryText"
@@ -39,10 +57,38 @@
     <TextView
         android:visibility="gone"
         android:textColor="@color/colorSecondaryText"
+        android:id="@+id/edited_date"
+        android:textSize="@dimen/due_date"
+        android:padding="10dp"
+        android:text="Body"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+    <TextView
+        android:visibility="gone"
+        android:textColor="@color/colorSecondaryText"
         android:id="@+id/color_note"
         android:textSize="@dimen/due_date"
         android:padding="10dp"
         android:text="Body"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
+    <TextView
+        android:visibility="gone"
+        android:textColor="@color/colorSecondaryText"
+        android:id="@+id/isSpecial_note"
+        android:textSize="@dimen/due_date"
+        android:padding="10dp"
+        android:text="Body"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+    <TextView
+        android:visibility="gone"
+        android:textColor="@color/colorSecondaryText"
+        android:id="@+id/state_note"
+        android:textSize="@dimen/due_date"
+        android:padding="10dp"
+        android:text="Body"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
 </LinearLayout>

@@ -5,7 +5,6 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-
     >
     <include layout="@layout/toolbar"/>
     <LinearLayout
@@ -52,11 +51,11 @@
         android:layout_marginLeft="10dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
+
         <EditText
             android:background="@null"
             android:textColor="@color/colorPrimaryText"
             android:drawableRight="@drawable/calendar"
-            android:drawableTint="@color/colorAccent"
             android:focusable="false"
             android:focusableInTouchMode="false"
             android:id="@+id/txt_date"
@@ -67,13 +66,21 @@
 
     <LinearLayout
         android:padding="@dimen/material_component_cards_left_and_right_padding"
-        android:layout_marginBottom="10dp"
+
         android:layout_marginRight="10dp"
         android:layout_marginLeft="10dp"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center_horizontal"
         android:orientation="vertical">
+        <TextView
+            android:gravity="center"
+            android:focusable="false"
+            android:focusableInTouchMode="false"
+            android:textColor="@color/colorPrimaryText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/edited_date_note"/>
         <!--<Button
             style="@style/Base.Widget.AppCompat.Button.Borderless"
             android:id="@+id/btn_color"
@@ -81,18 +88,7 @@
             android:layout_height="wrap_content"
             android:text="Color" />-->
 
-        <android.support.v7.widget.AppCompatButton
 
-            android:backgroundTint="@color/mdtp_white"
-            android:elevation="8dp"
-            android:id="@+id/fab_color"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentBottom="true"
-
-            />
 
     </LinearLayout>
 
@@ -100,7 +96,7 @@
         android:visibility="gone"
         android:textColor="@color/colorSecondaryText"
         android:id="@+id/txt_color"
-        android:textSize="@dimen/due_date"
+
         android:padding="10dp"
         android:text="Body"
         android:layout_width="match_parent"

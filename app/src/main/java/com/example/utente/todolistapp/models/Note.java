@@ -20,11 +20,27 @@ public class Note {
     private String body;
     private State state;
     private int color;
+    private boolean isSelected = false;
 
+    public boolean isSpecial() {
+        return isSpecial;
+    }
+
+    public void setSpecial(boolean special) {
+        isSpecial = special;
+    }
+
+    private boolean isSpecial;
     public int getId() {
         return id;
     }
 
+    public void setId(int id) {
+        this.id = id;
+    }
+    public Note(){
+
+    }
     public Note(String title, String body){
         this.id = counter;
         counter++;
@@ -32,6 +48,8 @@ public class Note {
         this.body = body;
         this.state = State.TODO;
         this.creationDate = Utilities.getCurrentDate();
+        this.dueDate = "";
+        this.lastEditDate = Utilities.getCurrentDate();
         this.color = android.R.color.white;
     }
 
@@ -91,6 +109,14 @@ public class Note {
         this.state = state;
     }
 
+    public void setSelected(boolean selected) {
+        isSelected = selected;
+    }
+
+
+    public boolean isSelected() {
+        return isSelected;
+    }
     public String toString(){
         return  "Ref " +id+"\n"+
                 "Title "+title+"\n"+
@@ -99,6 +125,8 @@ public class Note {
                 "Edited " +lastEditDate+"\n"+
                 "Due " +dueDate+"\n"+
                 "State " +state+"\n"+
-                "Color "+color+"\n";
+                "Color "+color+"\n" +
+                "isSpecial "+isSpecial+
+                "State "+state.getDescription()+"\n";
     }
 }

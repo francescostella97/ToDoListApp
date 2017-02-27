@@ -5,6 +5,7 @@
     <string name="date_hint">Due Date</string>
     <string name="to_do_hint">To do</string>
     <string name="done_hint">Done</string>
-
+    <!-- shared preferences-->
+    <string name="preferred_layout">PREFERRED LAYOUT</string>
 
 </resources>

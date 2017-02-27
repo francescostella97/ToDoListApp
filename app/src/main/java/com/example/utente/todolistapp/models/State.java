@@ -5,6 +5,20 @@ package com.example.utente.todolistapp.models;
  */
 
 public enum State {
-    TODO,
-    DONE,
+    TODO ("To do"),
+    DONE ("Done");
+
+    private String description;
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    State(String s) {
+        this.description = s;
+    }
 }

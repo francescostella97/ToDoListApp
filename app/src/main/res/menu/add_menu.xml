@@ -1,4 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
-
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/menu_special"
+        android:title="Special"
+        app:showAsAction="always" android:orderInCategory="100"
+        android:icon="@drawable/ic_bookmark_border_black_24dp"
+        />
+    <item
+        android:id="@+id/menu_state"
+        android:title="Done"
+        app:showAsAction="always" android:orderInCategory="100"
+        android:icon="@drawable/ic_archive_black_24dp"
+        />
+    <item
+        android:id="@+id/menu_colors"
+        android:title="Delete"
+        app:showAsAction="always" android:orderInCategory="100"
+        android:icon="@drawable/ic_color_lens_black_24dp"
+        />
+    <item
+        android:id="@+id/menu_done"
+        android:title="Done"
+        app:showAsAction="always" android:orderInCategory="100"
+        android:icon="@drawable/ic_done_black_24dp"
+        />
 </menu>
