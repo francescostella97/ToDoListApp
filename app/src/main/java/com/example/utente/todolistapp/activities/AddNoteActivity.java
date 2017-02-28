@@ -69,17 +69,15 @@ public class AddNoteActivity extends AppCompatActivity implements DatePickerDial
         colors = getResources().getIntArray(R.array.items);
     }
     //back button saving
-    /*@Override
+    @Override
     public boolean onKeyDown( int keyCode, KeyEvent event )  {
-        if ( keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0 ) {
-            Log.d("Back button pressend " , " now");
-            createEditIntent();
-            Log.d("EIDTED INTENT CREATeD " , " nnow");
-            return true;
+            if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
+                if(type==0) createAddIntent();
+                else if(type==1) createEditIntent();
+                return true;
         }
-
         return super.onKeyDown( keyCode, event );
-    }*/
+    }
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_note);
@@ -111,7 +109,7 @@ public class AddNoteActivity extends AppCompatActivity implements DatePickerDial
                 isSpecial = Boolean.valueOf(intent.getStringExtra("isSpecial"));
                 state = intent.getStringExtra("state");
                 System.out.println("MY STATE IS ----> " +state);
-
+                System.out.println("TITLE ---->"+intent.getStringExtra("title"));
                 int c = Integer.valueOf(intent.getStringExtra("color"));
 
                 txt_body.getRootView().setBackgroundColor(c);
@@ -209,7 +207,7 @@ public class AddNoteActivity extends AppCompatActivity implements DatePickerDial
         if(isSpecial) toolbar.getMenu().findItem(R.id.menu_special).setIcon(R.drawable.ic_bookmark_black_24dp);
             else toolbar.getMenu().findItem(R.id.menu_special).setIcon(R.drawable.ic_bookmark_border_black_24dp);
 
-        if(state.equals("true")) toolbar.getMenu().findItem(R.id.menu_state).setIcon(R.drawable.ic_unarchive_black_24dp);
+        if(state.equals("To do")) toolbar.getMenu().findItem(R.id.menu_state).setIcon(R.drawable.ic_unarchive_black_24dp);
             else toolbar.getMenu().findItem(R.id.menu_state).setIcon(R.drawable.ic_archive_black_24dp);
         return super.onCreateOptionsMenu(menu);
     }
@@ -217,10 +215,10 @@ public class AddNoteActivity extends AppCompatActivity implements DatePickerDial
         int id = item.getItemId();
         switch (id){
             case R.id.menu_state:
-                if(state.equals(State.DONE.getDescription())) state = State.TODO.getDescription();
-                else state = State.DONE.getDescription();
-                if(state.equals(State.TODO.getDescription())) item.setIcon(R.drawable.ic_archive_black_24dp);
-                else item.setIcon(R.drawable.ic_unarchive_black_24dp);
+                if(state.equals("Done")) state = "To do";
+                else state = "Done";
+                if(state.equals("To do")) item.setIcon(R.drawable.ic_unarchive_black_24dp);
+                else item.setIcon(R.drawable.ic_archive_black_24dp);
                 /*
                 final Note note = ((MainActivity)txt_body.getContext()).noteCardAdapter.getNote(Integer.valueOf(position));
                 final State currentState = note.getState();
@@ -242,25 +240,18 @@ public class AddNoteActivity extends AppCompatActivity implements DatePickerDial
                     }
                 }).show();*/
                 break;
-            case android.R.id.home: finish();break;
+            case android.R.id.home:
+                if(type==0) createAddIntent();
+                else if(type==1) createEditIntent();
+
+                finish();break;
             case R.id.menu_done:
 
                 if(type==0){
                     Log.d("Color-->",""+txt_color.getText().toString());
                     //adding...
                     if(validateForm()) {
-                        Log.d("----->","validated");
-                        Intent intent = new Intent();
-                        intent.putExtra("title", txt_title.getText().toString());
-                        intent.putExtra("body", txt_body.getText().toString());
-                        intent.putExtra("due_date",txt_date.getText().toString());
-                        //intent.putExtra("last_edited_date",txt_edited_date.getText().toString());
-                        intent.putExtra("color",txt_color.getText().toString());
-                        intent.putExtra("isSpecial",String.valueOf(isSpecial));
-                        intent.putExtra("state",state);
-                        setResult(Activity.RESULT_OK, intent);
-                        finish();
-                        Log.d("esito","intent creato");
+                        createAddIntent();
                         break;
                     }
 
@@ -328,14 +319,14 @@ public class AddNoteActivity extends AppCompatActivity implements DatePickerDial
     }
 
     public boolean validateForm(){
-        String title = txt_title.getText().toString();
+        /*String title = txt_title.getText().toString();
         String body = txt_body.getText().toString();
         if(!title.isEmpty()&&!body.isEmpty()) {
 
             return true;
         }
         Toast.makeText(this,"Fill the form!",Toast.LENGTH_SHORT).show();
-        return false;
+        return false;*/ return true;
     }
 
     public void createEditIntent(){
@@ -349,6 +340,18 @@ public class AddNoteActivity extends AppCompatActivity implements DatePickerDial
         intent.putExtra("state",state);
         intent.putExtra("position",position);
         setResult(2,intent);
+        finish();
+    }
+
+    public void createAddIntent(){
+        Intent intent = new Intent();
+        intent.putExtra("title", txt_title.getText().toString());
+        intent.putExtra("body", txt_body.getText().toString());
+        intent.putExtra("due_date",txt_date.getText().toString());
+        intent.putExtra("color",txt_color.getText().toString());
+        intent.putExtra("isSpecial",String.valueOf(isSpecial));
+        intent.putExtra("state",state);
+        setResult(Activity.RESULT_OK, intent);
         finish();
     }
 }

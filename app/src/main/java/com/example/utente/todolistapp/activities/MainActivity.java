@@ -1,27 +1,36 @@
 package com.example.utente.todolistapp.activities;
 
+import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.view.ActionMode;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
+import com.android.colorpicker.ColorPickerDialog;
+import com.android.colorpicker.ColorPickerSwatch;
 import com.example.utente.todolistapp.R;
 import com.example.utente.todolistapp.adapters.NoteCardAdapter;
 import com.example.utente.todolistapp.controllers.Utilities;
@@ -63,6 +72,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     LinearLayout mRelativeLayout;
     ArrayList<Note> myData;
     public DBHandler db;
+    int [] colors;
     public void onActivityResult(int reqCode, int resCode, Intent data){
         Log.d("request ",String.valueOf(reqCode));
         Log.d("result ",String.valueOf(resCode));
@@ -78,7 +88,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 boolean isSpecial = Boolean.valueOf(data.getStringExtra("isSpecial"));
                 String state = data.getStringExtra("state");
 
-                Note note = new Note(title,body);
+                Note note = new Note();
+                note.setTitle(title);
+                note.setBody(body);
                 note.setColor(Integer.valueOf(color));
                 note.setDueDate(due_date);
                 note.setSpecial(isSpecial);
@@ -91,6 +103,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 //noteCardAdapter.notifyItemRangeChanged(0, noteCardAdapter.getItemCount());
                 recyclerView.scrollToPosition(0);
                 Log.d("MainActivity",note.toString());
+                System.out.println("Added note \n"+note);
             }
             else if(resCode == 2){
                 //editing...
@@ -142,6 +155,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
     public void onStart(){
         super.onStart();
+        colors = getResources().getIntArray(R.array.items);
     }
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
@@ -151,6 +165,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         toolbar = (Toolbar) findViewById(R.id.toolbar_layout);
         setSupportActionBar(toolbar);
+        //toolbar.startActionMode(this);
+        //toolbar.startActionMode((android.view.ActionMode.Callback) mActionModeCallback);
         toolbar.setTitle(R.string.app_name);
         toolbar.setElevation(0);
 
@@ -160,7 +176,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         //mLayoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
         mLayoutManager = getLayoutManager();
         System.out.println("layout type " +layoutType);
-        noteCardAdapter = new NoteCardAdapter();
+        noteCardAdapter = new NoteCardAdapter(this);
         noteCardAdapter.setDataSet(db.getAllNotes());
         recyclerView.setLayoutManager(mLayoutManager);
         recyclerView.setAdapter(noteCardAdapter);
@@ -280,15 +296,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         //noteCardAdapter.setDataSet(myData);*/
     }
 
-    public ArrayList<Note> getNoteCards(){
-        ArrayList<Note> noteCards = new ArrayList<>();
-        Note one = new Note("Registro Pranzi","Fare reg pranzi ogni sabato");
-        Note two = new Note("Ritirare biancheria", "Mauris facilisis pulvinar accumsan. Etiam at tortor fermentum, scelerisque nunc non, consectetur mi. Etiam commodo dictum leo, ac malesuada quam efficitur ut. Fusce efficitur arcu vestibulum mollis congue. Nunc nec elit sed libero maximus auctor. Aliquam purus dui, molestie non gravida id, rutrum vel elit. Pellentesque imperdiet, erat eget faucibus accumsan, eros enim varius sem, et molestie orci nulla a erat. Nulla sodales consequat dolor. Proin quis massa et sem tristique finibus. Aenean consequat feugiat quam, sed eleifend tortor porta eget. Phasellus at venenatis felis. Fusce sed mauris nec metus congue ullamcorper. Nam consequat enim vitae orci finibus, commodo ultricies eros finibus. Nulla malesuada sagittis risus eget pharetra.");
-        //noteCards.add(one);
-        //noteCards.add(two);
-
-        return  noteCards;
-    }
 
     @Override
     public void onStop() {
@@ -304,4 +311,107 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         return noteCardAdapter.getDataSet();
     }
+    public static ActionMode mActionMode;
+    public ActionMode.Callback mActionModeCallback = new ActionMode.Callback() {
+
+        // Called when the action mode is created; startActionMode() was called
+        @Override
+        public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+            // Inflate a menu resource providing context menu items
+            MenuInflater inflater = mode.getMenuInflater();
+            inflater.inflate(R.menu.actionmode_menu, menu);
+            mActionMode = mode;
+            return true;
+        }
+
+        // Called each time the action mode is shown. Always called after onCreateActionMode, but
+        // may be called multiple times if the mode is invalidated.
+        @Override
+        public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+            return false; // Return false if nothing is done
+        }
+
+        // Called when the user selects a contextual menu item
+        @Override
+        public boolean onActionItemClicked(final ActionMode mode, MenuItem item) {
+            switch (item.getItemId()) {
+                case R.id.act_menu_delete:
+                    deleteSelectedNotes();
+                    mode.finish();
+                    break;
+                case android.R.id.home:
+                    System.out.println("hello .............>");
+                    if(mActionMode!=null) mActionMode.finish();
+                    System.out.println("closed action mode");
+                    noteCardAdapter.flag = false;
+                    noteCardAdapter.count = 0;
+                    noteCardAdapter.deselectAllNotes();
+                    mode.finish();
+                    break;
+                case R.id.act_menu_colors:
+                    final ColorPickerDialog colorPickerDialog = new ColorPickerDialog();
+
+                    colorPickerDialog.initialize(
+                            R.string.app_name, colors, R.color.colorAccent, 4, colors.length);
+                    colorPickerDialog.setOnColorSelectedListener(new ColorPickerSwatch.OnColorSelectedListener() {
+                        @Override
+                        public void onColorSelected(int color) {
+                            changeColorOnSelectedNotes(color);
+                            mode.finish();
+
+                        }
+                    });
+
+                    colorPickerDialog.show(getFragmentManager(), "ColorPickerDialog");
+                    break;
+                default:
+                    System.out.println("default act" );
+            }
+            return true;
+        }
+
+        // Called when the user exits the action mode
+        @Override
+        public void onDestroyActionMode(ActionMode mode) {
+            noteCardAdapter.flag = false;
+            noteCardAdapter.count = 0;
+            noteCardAdapter.deselectAllNotes();
+            mActionMode = null;
+        }
+    };
+
+    public void deleteSelectedNotes(){
+        int size = noteCardAdapter.getDataSet().size();
+        for (int i = 0; i < noteCardAdapter.getDataSet().size() ; i++) {
+            System.out.println("-------------------->\n"+noteCardAdapter.getDataSet().get(i));
+            Note n = noteCardAdapter.getNote(i);
+            if(noteCardAdapter.getDataSet().get(i).isSelected()){
+                noteCardAdapter.removeNote(i);
+                db.deleteNote(n);
+                noteCardAdapter.notifyItemRemoved(i);
+                i--;
+            }
+        }
+    }
+
+    public void changeColorOnSelectedNotes(int color){
+        for (int i = 0; i< noteCardAdapter.getDataSet().size();i++){
+            Note n = noteCardAdapter.getNote(i);
+            if(n.isSelected()){
+                n.setColor(color);
+                db.updateNote(n);
+            }
+        }
+        noteCardAdapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public boolean onKeyDown( int keyCode, KeyEvent event )  {
+        noteCardAdapter.flag = false;
+        noteCardAdapter.count = 0;
+        noteCardAdapter.deselectAllNotes();
+
+        return super.onKeyDown( keyCode, event );
+    }
+
 }

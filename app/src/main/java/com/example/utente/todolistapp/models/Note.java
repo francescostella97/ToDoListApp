@@ -38,14 +38,12 @@ public class Note {
     public void setId(int id) {
         this.id = id;
     }
-    public Note(){
 
-    }
-    public Note(String title, String body){
+    public Note(){
+        this.title = "";
+        this.body = "";
         this.id = counter;
         counter++;
-        this.title = title;
-        this.body = body;
         this.state = State.TODO;
         this.creationDate = Utilities.getCurrentDate();
         this.dueDate = "";
@@ -118,7 +116,8 @@ public class Note {
         return isSelected;
     }
     public String toString(){
-        return  "Ref " +id+"\n"+
+        return  "Selected "+isSelected()+"\n"+
+                "Ref " +id+"\n"+
                 "Title "+title+"\n"+
                 "Description "+body+"\n"+
                 "Created " +creationDate+"\n"+

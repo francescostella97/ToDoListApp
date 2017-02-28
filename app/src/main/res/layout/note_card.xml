@@ -2,13 +2,14 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/layout_note_card"
-    android:background="@color/colorIcons"
+    android:padding="8dp"
     android:layout_margin="6dp"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:elevation="8dp"
-    android:clickable="true">
-
+    android:clickable="true"
+    android:background="@drawable/my_custom_background">
+    <!-- android:background="@color/colorIcons"-->
     <LinearLayout
         android:weightSum="5"
         android:layout_width="match_parent"
@@ -18,7 +19,7 @@
         android:padding="10dp"
         android:textStyle="bold"
         android:textSize="18sp"
-        android:text="Title"
+        android:text=""
         android:id="@+id/title_note"
         android:layout_weight="4"
         android:layout_width="0dp"
@@ -27,6 +28,7 @@
             android:background="@null"
             android:gravity="center"
             android:layout_weight="1"
+            android:layout_gravity="right"
 
             android:drawableTint="@color/blue"
             android:layout_width="0dp"
@@ -41,7 +43,7 @@
         android:id="@+id/body_note"
         android:textSize="@dimen/body"
         android:padding="10dp"
-        android:text="Body"
+        android:text=""
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
@@ -51,7 +53,7 @@
         android:id="@+id/due_date_note"
         android:textSize="@dimen/due_date"
         android:padding="10dp"
-        android:text="Body"
+        android:text=""
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
     <TextView
@@ -60,7 +62,7 @@
         android:id="@+id/edited_date"
         android:textSize="@dimen/due_date"
         android:padding="10dp"
-        android:text="Body"
+        android:text=""
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
     <TextView
@@ -69,7 +71,7 @@
         android:id="@+id/color_note"
         android:textSize="@dimen/due_date"
         android:padding="10dp"
-        android:text="Body"
+        android:text=""
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
     <TextView
@@ -78,7 +80,7 @@
         android:id="@+id/isSpecial_note"
         android:textSize="@dimen/due_date"
         android:padding="10dp"
-        android:text="Body"
+        android:text=""
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
     <TextView
@@ -87,7 +89,7 @@
         android:id="@+id/state_note"
         android:textSize="@dimen/due_date"
         android:padding="10dp"
-        android:text="Body"
+        android:text=""
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 

@@ -1,11 +1,15 @@
 package com.example.utente.todolistapp.adapters;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.DrawableContainer;
 import android.graphics.drawable.GradientDrawable;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.view.ActionMode;
 import android.support.v7.widget.RecyclerView;
 import android.text.Layout;
 import android.view.LayoutInflater;
@@ -32,7 +36,10 @@ import java.util.List;
 public class NoteCardAdapter extends RecyclerView.Adapter<NoteCardAdapter.NoteCardVH> {
     public static boolean flag = false;
     public static int count = 0;
-
+    Context context;
+    public NoteCardAdapter(Context context){
+        this.context = context;
+    }
     ArrayList<Note> dataSet = new ArrayList<>();
     public void addNote(Note note){
         if(getItemCount()!=0) {
@@ -80,13 +87,29 @@ public class NoteCardAdapter extends RecyclerView.Adapter<NoteCardAdapter.NoteCa
 
     public void onBindViewHolder(final NoteCardAdapter.NoteCardVH holder, int position){
         final Note note = dataSet.get(position);
-        System.out.println(note);
-        holder.txt_title.setText(note.getTitle());
-        holder.txt_body.setText(note.getBody());
+
+        if(note.getTitle().equals("")) {
+            holder.txt_title.setVisibility(View.GONE);
+            holder.txt_title.setText("");
+        }
+        else {
+            holder.txt_title.setVisibility(View.VISIBLE);
+            holder.txt_title.setText(note.getTitle());
+        }
+        if(note.getBody().equals("")) {
+            holder.txt_body.setVisibility(View.GONE);
+            holder.txt_body.setText("");
+
+        }
+        else{
+            holder.txt_body.setVisibility(View.VISIBLE);
+            holder.txt_body.setText(note.getBody());
+        }
+
         holder.txt_due_date.setText(note.getDueDate());
         holder.txt_edited_date.setText(note.getLastEditDate());
         holder.txt_color.setText(""+note.getColor());
-        holder.txt_state.setText(String.valueOf(note.isSpecial()));
+        holder.txt_state.setText(String.valueOf(note.getState().getDescription()));
         holder.txt_body.getRootView().setBackgroundColor(note.getColor());
         holder.txt_body.getRootView().getBackground().setAlpha(150);
 
@@ -98,7 +121,34 @@ public class NoteCardAdapter extends RecyclerView.Adapter<NoteCardAdapter.NoteCa
             holder.btn_special.setDrawingCacheBackgroundColor(Color.BLUE);
         }
         else {
-            holder.btn_special.setVisibility(View.INVISIBLE);
+            holder.btn_special.setVisibility(View.GONE);
+        }
+
+        if(note.isSelected()){
+            GradientDrawable drawableSelected = new GradientDrawable();
+
+            drawableSelected.setShape(GradientDrawable.RECTANGLE);
+            drawableSelected.setStroke(10, holder.btn_special.getContext().getResources().getColor(R.color.mdtp_light_gray));
+
+            drawableSelected.setColor(note.getColor());
+            drawableSelected.setAlpha(180);
+            holder.btn_special.getRootView().setBackgroundColor(note.getColor());
+
+            holder.btn_special.getRootView().setBackgroundDrawable(drawableSelected);
+            drawableSelected.setCornerRadius(5);
+
+        }else{
+            GradientDrawable drawableSelectedDeselected = new GradientDrawable();
+            drawableSelectedDeselected.setShape(GradientDrawable.RECTANGLE);
+
+
+            drawableSelectedDeselected.setColor(note.getColor());
+            drawableSelectedDeselected.setAlpha(150);
+            holder.btn_special.getRootView().setBackgroundColor(note.getColor());
+
+            holder.btn_special.getRootView().setBackgroundDrawable(drawableSelectedDeselected);
+            drawableSelectedDeselected.setCornerRadius(5);
+
         }
         //holder.txt_state.setText(note.getState().getDescription());
 /*        holder.textView.setOnLongClickListener(new View.OnLongClickListener() {
@@ -130,13 +180,29 @@ public class NoteCardAdapter extends RecyclerView.Adapter<NoteCardAdapter.NoteCa
         return dataSet.size();
     }
 
-    public class NoteCardVH extends RecyclerView.ViewHolder implements View.OnClickListener,View.OnLongClickListener{
+    public void deselectAllNotes(){
+        for(Note n : dataSet){
+            if(n.isSelected()) {
+                n.setSelected(false);
+                /*GradientDrawable drawableSelectedDeselected = new GradientDrawable();
+                drawableSelectedDeselected.setShape(GradientDrawable.RECTANGLE);
 
+
+                drawableSelectedDeselected.setColor(n.getColor());
+                drawableSelectedDeselected.setAlpha(150);*/
+
+            }
+        }
+        notifyDataSetChanged();
+    }
+    public class NoteCardVH extends RecyclerView.ViewHolder implements View.OnClickListener,View.OnLongClickListener{
+        //final ActionMode mActionMode;
+        ActionMode.Callback callback;
         TextView txt_edited_date, txt_state;
         private TextView textView;
         TextView txt_isSpecial; Button btn_special;
         TextView txt_title, txt_body,txt_due_date,txt_color;
-        private View view;
+        View view;
         public NoteCardVH(View itemView){
             super(itemView);
             view = itemView;
@@ -158,6 +224,7 @@ public class NoteCardAdapter extends RecyclerView.Adapter<NoteCardAdapter.NoteCa
 
         @Override
         public boolean onLongClick(View v) {
+
             /*
             final Note note = dataSet.get(getAdapterPosition());
             final State currentState = note.getState();
@@ -184,28 +251,25 @@ public class NoteCardAdapter extends RecyclerView.Adapter<NoteCardAdapter.NoteCa
             System.out.println("PRESSED ---> "+note);
             //((MainActivity)txt_title.getContext()).noteCardAdapter.notifyItemChanged(getAdapterPosition());
             return true;*/
-            count++;
-            flag = true;
-            Note note =  dataSet.get(getAdapterPosition());
-            note.setSelected(!note.isSelected());
-            //if(note.isSelected())   count++;
-            //else count --;
-            GradientDrawable drawableSelected = new GradientDrawable();
-            drawableSelected.setShape(GradientDrawable.RECTANGLE);
-            drawableSelected.setStroke(10, view.getContext().getResources().getColor(R.color.colorPrimaryDark));
+            if(flag==false) {
+                count++;
+                flag = true;
+                Note note = dataSet.get(getAdapterPosition());
+                note.setSelected(!note.isSelected());
+                notifyItemChanged(getAdapterPosition());
+                System.out.println("Schede selezionate " + count + " " + flag);
+                //calling action mode in main activity
+                MainActivity.mActionMode = ((MainActivity) context).mActionMode;
+                callback = ((MainActivity) context).mActionModeCallback;
 
-            drawableSelected.setColor(note.getColor());
-            drawableSelected.setAlpha(180);
+                if (MainActivity.mActionMode != null) {
+                    MainActivity.mActionMode.setTitle("" + count);
+                    return false;
+                }
+                MainActivity.mActionMode = ((MainActivity) v.getContext()).startSupportActionMode(callback);
 
-            GradientDrawable drawableSelectedDeselected = new GradientDrawable();
-            drawableSelectedDeselected.setShape(GradientDrawable.RECTANGLE);
-
-
-            drawableSelectedDeselected.setColor(note.getColor());
-            drawableSelectedDeselected.setAlpha(150);
-
-            view.setBackgroundDrawable(note.isSelected()? drawableSelected:drawableSelectedDeselected);
-            System.out.println("Schede selezionate "+count+ " "+flag);
+                MainActivity.mActionMode.setTitle("" + count);
+            }
             return true;
 
         }
@@ -229,13 +293,16 @@ public class NoteCardAdapter extends RecyclerView.Adapter<NoteCardAdapter.NoteCa
 
                 Note note =  dataSet.get(getAdapterPosition());
                 note.setSelected(!note.isSelected());
-                if(note.isSelected())   count++;
+                if(note.isSelected())
+                    count++;
                 else count --;
+                if(MainActivity.mActionMode!=null) MainActivity.mActionMode.setTitle(""+count);
                 if(count == 0) {
-                    System.out.println("resetted");
+                    if(MainActivity.mActionMode!=null){ MainActivity.mActionMode.finish();}
                     flag = false;
                 }
-                GradientDrawable drawableSelected = new GradientDrawable();
+                notifyItemChanged(getAdapterPosition());
+                /*GradientDrawable drawableSelected = new GradientDrawable();
                 drawableSelected.setShape(GradientDrawable.RECTANGLE);
                 drawableSelected.setStroke(10, view.getContext().getResources().getColor(R.color.colorPrimaryDark));
 
@@ -246,9 +313,14 @@ public class NoteCardAdapter extends RecyclerView.Adapter<NoteCardAdapter.NoteCa
                 drawableSelectedDeselected.setShape(GradientDrawable.RECTANGLE);
                 drawableSelectedDeselected.setColor(note.getColor());
                 drawableSelectedDeselected.setAlpha(150);
-                view.setBackgroundDrawable(note.isSelected()? drawableSelected:drawableSelectedDeselected);
+                view.setBackgroundDrawable(note.isSelected()? drawableSelected:drawableSelectedDeselected);*/
                 //flag = true;
             }
+            if(count == 0){
+                System.out.println("yes destroy it");
+
+            }
+
             System.out.println("Schede selezionate "+count+ " "+flag +" after");
         }
     }
