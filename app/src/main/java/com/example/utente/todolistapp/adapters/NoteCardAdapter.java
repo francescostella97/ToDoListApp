@@ -3,31 +3,21 @@ package com.example.utente.todolistapp.adapters;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
-import android.graphics.drawable.Drawable;
-import android.graphics.drawable.DrawableContainer;
 import android.graphics.drawable.GradientDrawable;
-import android.support.design.widget.CoordinatorLayout;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.view.ActionMode;
 import android.support.v7.widget.RecyclerView;
-import android.text.Layout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
-
 import com.example.utente.todolistapp.activities.AddNoteActivity;
 import com.example.utente.todolistapp.activities.MainActivity;
-import com.example.utente.todolistapp.models.Model;
 import com.example.utente.todolistapp.models.Note;
 import com.example.utente.todolistapp.R;
 import com.example.utente.todolistapp.models.State;
-
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by Utente on 20/02/2017.
@@ -41,6 +31,7 @@ public class NoteCardAdapter extends RecyclerView.Adapter<NoteCardAdapter.NoteCa
         this.context = context;
     }
     ArrayList<Note> dataSet = new ArrayList<>();
+
     public void addNote(Note note){
         if(getItemCount()!=0) {
             dataSet.add(getItemCount(), note);
@@ -80,6 +71,7 @@ public class NoteCardAdapter extends RecyclerView.Adapter<NoteCardAdapter.NoteCa
     }
 
     public NoteCardAdapter.NoteCardVH onCreateViewHolder(ViewGroup parent, int viewType){
+        //crea layout degli item nell rv
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.note_card,parent,false);
         return new NoteCardVH(view);
@@ -148,33 +140,7 @@ public class NoteCardAdapter extends RecyclerView.Adapter<NoteCardAdapter.NoteCa
 
             holder.btn_special.getRootView().setBackgroundDrawable(drawableSelectedDeselected);
             drawableSelectedDeselected.setCornerRadius(5);
-
         }
-        //holder.txt_state.setText(note.getState().getDescription());
-/*        holder.textView.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View view) {
-                note.setSelected(!note.isSelected());
-                //holder.view.setBackgroundColor(note.isSelected() ? Color.CYAN : Color.WHITE);
-                GradientDrawable drawableSelected = new GradientDrawable();
-                drawableSelected.setShape(GradientDrawable.RECTANGLE);
-                drawableSelected.setStroke(10, view.getContext().getResources().getColor(R.color.colorPrimaryDark));
-
-                drawableSelected.setColor(note.getColor());
-                drawableSelected.setAlpha(180);
-
-                GradientDrawable drawableSelectedDeselected = new GradientDrawable();
-                drawableSelectedDeselected.setShape(GradientDrawable.RECTANGLE);
-
-
-                drawableSelectedDeselected.setColor(note.getColor());
-                drawableSelectedDeselected.setAlpha(150);
-
-                holder.view.setBackgroundDrawable(note.isSelected()? drawableSelected:drawableSelectedDeselected);
-                //holder.txt_body.getRootView().setBackgroundColor(Color.CYAN);
-                return true;
-            }
-        });*/
     }
     public int getItemCount(){
         return dataSet.size();
@@ -184,13 +150,6 @@ public class NoteCardAdapter extends RecyclerView.Adapter<NoteCardAdapter.NoteCa
         for(Note n : dataSet){
             if(n.isSelected()) {
                 n.setSelected(false);
-                /*GradientDrawable drawableSelectedDeselected = new GradientDrawable();
-                drawableSelectedDeselected.setShape(GradientDrawable.RECTANGLE);
-
-
-                drawableSelectedDeselected.setColor(n.getColor());
-                drawableSelectedDeselected.setAlpha(150);*/
-
             }
         }
         notifyDataSetChanged();
@@ -199,17 +158,17 @@ public class NoteCardAdapter extends RecyclerView.Adapter<NoteCardAdapter.NoteCa
         //final ActionMode mActionMode;
         ActionMode.Callback callback;
         TextView txt_edited_date, txt_state;
-        private TextView textView;
         TextView txt_isSpecial; Button btn_special;
         TextView txt_title, txt_body,txt_due_date,txt_color;
         View view;
+
         public NoteCardVH(View itemView){
             super(itemView);
             view = itemView;
             itemView.setOnLongClickListener(this);
             itemView.setOnClickListener(this);
-            //textView = (TextView) itemView.findViewById(R.id.text_view);
 
+            //gestione UI
             txt_title = (TextView) itemView.findViewById(R.id.title_note);
             txt_body = (TextView) itemView.findViewById(R.id.body_note);
             txt_due_date = (TextView) itemView.findViewById(R.id.due_date_note);
@@ -219,8 +178,6 @@ public class NoteCardAdapter extends RecyclerView.Adapter<NoteCardAdapter.NoteCa
             btn_special = (Button) itemView.findViewById(R.id.special_btn_note);
             txt_state = (TextView) itemView.findViewById(R.id.state_note);
         }
-
-
 
         @Override
         public boolean onLongClick(View v) {
@@ -261,7 +218,6 @@ public class NoteCardAdapter extends RecyclerView.Adapter<NoteCardAdapter.NoteCa
                 //calling action mode in main activity
                 MainActivity.mActionMode = ((MainActivity) context).mActionMode;
                 callback = ((MainActivity) context).mActionModeCallback;
-
                 if (MainActivity.mActionMode != null) {
                     MainActivity.mActionMode.setTitle("" + count);
                     return false;
@@ -271,7 +227,6 @@ public class NoteCardAdapter extends RecyclerView.Adapter<NoteCardAdapter.NoteCa
                 MainActivity.mActionMode.setTitle("" + count);
             }
             return true;
-
         }
 
         @Override
@@ -302,26 +257,7 @@ public class NoteCardAdapter extends RecyclerView.Adapter<NoteCardAdapter.NoteCa
                     flag = false;
                 }
                 notifyItemChanged(getAdapterPosition());
-                /*GradientDrawable drawableSelected = new GradientDrawable();
-                drawableSelected.setShape(GradientDrawable.RECTANGLE);
-                drawableSelected.setStroke(10, view.getContext().getResources().getColor(R.color.colorPrimaryDark));
-
-                drawableSelected.setColor(note.getColor());
-                drawableSelected.setAlpha(180);
-
-                GradientDrawable drawableSelectedDeselected = new GradientDrawable();
-                drawableSelectedDeselected.setShape(GradientDrawable.RECTANGLE);
-                drawableSelectedDeselected.setColor(note.getColor());
-                drawableSelectedDeselected.setAlpha(150);
-                view.setBackgroundDrawable(note.isSelected()? drawableSelected:drawableSelectedDeselected);*/
-                //flag = true;
             }
-            if(count == 0){
-                System.out.println("yes destroy it");
-
-            }
-
-            System.out.println("Schede selezionate "+count+ " "+flag +" after");
         }
     }
 }

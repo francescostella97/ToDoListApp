@@ -1,86 +1,72 @@
 package com.example.utente.todolistapp.activities;
 
-import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.view.ActionMode;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.support.v7.widget.Toolbar;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
 import android.view.KeyEvent;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
-import android.widget.Button;
-import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
-
 import com.android.colorpicker.ColorPickerDialog;
 import com.android.colorpicker.ColorPickerSwatch;
 import com.example.utente.todolistapp.R;
 import com.example.utente.todolistapp.adapters.NoteCardAdapter;
-import com.example.utente.todolistapp.controllers.Utilities;
+import com.example.utente.todolistapp.controllers.MyTouchHelper;
 import com.example.utente.todolistapp.db.DBHandler;
-import com.example.utente.todolistapp.models.Model;
 import com.example.utente.todolistapp.models.Note;
 import com.example.utente.todolistapp.models.State;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by Utente on 20/02/2017.
  */
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener {
-
+public class MainActivity extends AppCompatActivity {
+    //private constants
     private String KEY_LAYOUT_TYPE = "layout";
     private final int STRAGGERED = 1;
     private final int LINEAR  =0;
-    private int layoutType;
 
+    //campo per tipo di layout
+    private int layoutType;
     public int getLayoutType() {
         return layoutType;
     }
-
     public void setLayoutType(int layoutType) {
         this.layoutType = layoutType;
     }
 
     Toolbar toolbar;
-    Button btnToDo, btnDone;
+    int [] colors;
+    MyTouchHelper touchHelper;
     //recycler view items
     public FloatingActionButton fab;
     public RecyclerView recyclerView;
-    //LinearLayoutManager layoutManager;
     RecyclerView.LayoutManager mLayoutManager;
     public NoteCardAdapter noteCardAdapter;
-    LinearLayout mRelativeLayout;
-    ArrayList<Note> myData;
+    //handler database locale
     public DBHandler db;
-    int [] colors;
+
+
     public void onActivityResult(int reqCode, int resCode, Intent data){
         Log.d("request ",String.valueOf(reqCode));
         Log.d("result ",String.valueOf(resCode));
 
         if(reqCode==1){
-            Log.d("checking",".----...-.-");
+
             if(resCode == Activity.RESULT_OK){
-                Log.d("MainActivity","ENTERED");
+
                 String title = data.getStringExtra("title");
                 String body = data.getStringExtra("body");
                 String due_date = data.getStringExtra("due_date");
@@ -102,8 +88,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 else noteCardAdapter.addNote(note);
                 //noteCardAdapter.notifyItemRangeChanged(0, noteCardAdapter.getItemCount());
                 recyclerView.scrollToPosition(0);
-                Log.d("MainActivity",note.toString());
-                System.out.println("Added note \n"+note);
             }
             else if(resCode == 2){
                 //editing...
@@ -131,31 +115,31 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     noteCardAdapter.removeNote(position);
                     noteCardAdapter.addAtTop(editedNote);
                     recyclerView.scrollToPosition(0);
-                    //noteCardAdapter.notifyItemInserted(0);
-                    //noteCardAdapter.notifyItemChanged(position);
                 }
-                //else noteCardAdapter.addNote(note);
-                //noteCardAdapter.notifyItemRangeChanged(0, noteCardAdapter.getItemCount());
 
                 noteCardAdapter.notifyDataSetChanged();
                 recyclerView.scrollToPosition(position);
-                Log.d("MainActivity",editedNote.toString());
-
             }
             else if(resCode == 3){
                 //deleting...
-                String title = data.getStringExtra("title");
-                String body = data.getStringExtra("body");
-                String due_date = data.getStringExtra("due_date");
                 int position = Integer.valueOf(data.getStringExtra("position"));
                 db.deleteNote(noteCardAdapter.getNote(position));
                 noteCardAdapter.removeNote(position);
             }
         }
     }
+    @Override
     public void onStart(){
         super.onStart();
         colors = getResources().getIntArray(R.array.items);
+    }
+    @Override
+    public boolean onKeyDown( int keyCode, KeyEvent event )  {
+        noteCardAdapter.flag = false;
+        noteCardAdapter.count = 0;
+        noteCardAdapter.deselectAllNotes();
+        mActionMode = null;
+        return super.onKeyDown( keyCode, event );
     }
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
@@ -163,81 +147,74 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         db = new DBHandler(this);
 
+        //creazione toolbar
         toolbar = (Toolbar) findViewById(R.id.toolbar_layout);
         setSupportActionBar(toolbar);
-        //toolbar.startActionMode(this);
-        //toolbar.startActionMode((android.view.ActionMode.Callback) mActionModeCallback);
         toolbar.setTitle(R.string.app_name);
         toolbar.setElevation(0);
 
-        mRelativeLayout = (LinearLayout) findViewById(R.id.linear_layout_main_activity);
+        //gestione rv e adapter
         recyclerView = (RecyclerView) findViewById(R.id.rv_layout_main_activity);
-        //layoutManager = new LinearLayoutManager(this);
-        //mLayoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
         mLayoutManager = getLayoutManager();
-        System.out.println("layout type " +layoutType);
         noteCardAdapter = new NoteCardAdapter(this);
         noteCardAdapter.setDataSet(db.getAllNotes());
         recyclerView.setLayoutManager(mLayoutManager);
         recyclerView.setAdapter(noteCardAdapter);
 
-        fab = (FloatingActionButton) findViewById(R.id.add_note);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(MainActivity.this,AddNoteActivity.class);
+        //multiselection items
 
-                startActivityForResult(intent,1);
-            }
-        });
+        touchHelper = new MyTouchHelper(noteCardAdapter,this);
+        ItemTouchHelper helper = new ItemTouchHelper(touchHelper);
+        helper.attachToRecyclerView(recyclerView);
 
-        btnDone = (Button) findViewById(R.id.done_btn);
-        btnDone.setOnClickListener(this);
-        btnToDo = (Button) findViewById(R.id.to_do_btn);
-        btnToDo.setOnClickListener(this);
-
+        //animazioni floating action button
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener(){
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy){
                 if (dy > 0 ||dy<0 && fab.isShown())
                     fab.hide();
             }
-
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-
                 if (newState == RecyclerView.SCROLL_STATE_IDLE){
                     fab.show();
                 }
                 super.onScrollStateChanged(recyclerView, newState);
             }
         });
-        //noteCardAdapter.setDataSet(getNoteCards());
+
+        //floating action button principale
+        fab = (FloatingActionButton) findViewById(R.id.add_note);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //intent per creazione nota
+                Intent intent = new Intent(MainActivity.this,AddNoteActivity.class);
+                startActivityForResult(intent,1);
+            }
+        });
+        //gestione intent da un app esterna
         Intent intent = getIntent();
         if (Intent.ACTION_SEND.equals(intent.getAction()) && intent.getType() != null) {
             if ("text/plain".equals(intent.getType())) {
                 Intent newIntent = new Intent(MainActivity.this, AddNoteActivity.class);
                 newIntent.putExtra("body", intent.getStringExtra(Intent.EXTRA_TEXT));
-                Log.d("contenuto ", intent.getStringExtra(Intent.EXTRA_TEXT));
                 startActivityForResult(newIntent, 1);
             }
-
         }
     }
 
     private RecyclerView.LayoutManager getLayoutManager() {
+        //acquisizione layout dalle sharedPreferences
         SharedPreferences layoutPref = getSharedPreferences(getString(R.string.preferred_layout),Context.MODE_PRIVATE);
         int type = layoutPref.getInt(KEY_LAYOUT_TYPE, -1);
-        System.out.println("preferred layout got " + type);
+        //impostazione layout delle sharedPreferences
         if (type == STRAGGERED){
             setLayoutType(STRAGGERED);
-            Log.d("LAYOUT APPLIED ",""+type);
             return new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
         }
         else if(type == LINEAR){
             setLayoutType(LINEAR);
-            Log.d("LAYOUT APPLIED ",""+type);
-
             return new LinearLayoutManager(this);
         }
         return new LinearLayoutManager(this);
@@ -246,6 +223,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public boolean onCreateOptionsMenu(Menu menu){
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.main_menu,menu);
+        //setta icona in base al layout delle sharedPreferences
         if(getLayoutType() == STRAGGERED)
             toolbar.getMenu().findItem(R.id.menu_layout_type).setIcon(R.drawable.ic_view_list_white_24dp);
         else if(getLayoutType() == LINEAR)
@@ -256,50 +234,25 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
     public boolean onOptionsItemSelected(MenuItem item){
         int id = item.getItemId();
+        //aggiorna icona e layout in base al layout delle sharedPreferences
         if(id == R.id.menu_layout_type){
             if(getLayoutType() == STRAGGERED){
                 setLayoutType(LINEAR);
-                System.out.println("new layout type " +getLayoutType());
                 item.setIcon(R.drawable.ic_view_quilt_white_24dp);
-
                 recyclerView.setLayoutManager(new LinearLayoutManager(this));
-
             }
             else if(getLayoutType() == LINEAR){
                 item.setIcon(R.drawable.ic_view_list_white_24dp);
                 setLayoutType(STRAGGERED);
-                System.out.println("new layout type " +getLayoutType());
                 recyclerView.setLayoutManager(new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL));
             }
         }
         return super.onOptionsItemSelected(item);
     }
 
-    public void onClick(View view){/*
-        //myData = noteCardAdapter.getDataSet();
-        if(view.getId() == R.id.done_btn){
-            ArrayList<Note> list = noteCardAdapter.getDataSetByState(State.DONE);
-            noteCardAdapter.getDataSet().clear();
-            noteCardAdapter.getDataSet().addAll(list);
-
-            noteCardAdapter.setDataSet(list);
-        }
-        else if(view.getId() == R.id.to_do_btn){
-            ArrayList<Note> list = noteCardAdapter.getDataSetByState(State.TODO);
-
-            noteCardAdapter.getDataSet().clear();
-            noteCardAdapter.getDataSet().addAll(list);
-
-            noteCardAdapter.setDataSet(list);
-        }
-        noteCardAdapter.notifyDataSetChanged();
-        //noteCardAdapter.setDataSet(myData);*/
-    }
-
-
     @Override
     public void onStop() {
-        Log.d("APP STOPPED ", "---------");
+        //salvataggio sharedPreferences
         SharedPreferences layoutPref = getSharedPreferences(getString(R.string.preferred_layout), Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = layoutPref.edit();
         editor.putInt(KEY_LAYOUT_TYPE,getLayoutType());
@@ -307,17 +260,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onStop();
 
     }
-    private List<Note> getListData() {
 
-        return noteCardAdapter.getDataSet();
-    }
     public static ActionMode mActionMode;
     public ActionMode.Callback mActionModeCallback = new ActionMode.Callback() {
 
-        // Called when the action mode is created; startActionMode() was called
+        // chiamato quando l'actionMode si crea
         @Override
         public boolean onCreateActionMode(ActionMode mode, Menu menu) {
-            // Inflate a menu resource providing context menu items
+            //impostazione menu dell'action mode
             MenuInflater inflater = mode.getMenuInflater();
             inflater.inflate(R.menu.actionmode_menu, menu);
             mActionMode = mode;
@@ -331,7 +281,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             return false; // Return false if nothing is done
         }
 
-        // Called when the user selects a contextual menu item
+        // gestione click su item del menu dell'action mode
         @Override
         public boolean onActionItemClicked(final ActionMode mode, MenuItem item) {
             switch (item.getItemId()) {
@@ -350,7 +300,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     break;
                 case R.id.act_menu_colors:
                     final ColorPickerDialog colorPickerDialog = new ColorPickerDialog();
-
                     colorPickerDialog.initialize(
                             R.string.app_name, colors, R.color.colorAccent, 4, colors.length);
                     colorPickerDialog.setOnColorSelectedListener(new ColorPickerSwatch.OnColorSelectedListener() {
@@ -361,7 +310,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                         }
                     });
-
                     colorPickerDialog.show(getFragmentManager(), "ColorPickerDialog");
                     break;
                 default:
@@ -370,7 +318,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             return true;
         }
 
-        // Called when the user exits the action mode
+        // chiamato all'uscita dell'action mode
         @Override
         public void onDestroyActionMode(ActionMode mode) {
             noteCardAdapter.flag = false;
@@ -380,10 +328,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     };
 
+    //elimina tutte le note selezionate
     public void deleteSelectedNotes(){
-        int size = noteCardAdapter.getDataSet().size();
         for (int i = 0; i < noteCardAdapter.getDataSet().size() ; i++) {
-            System.out.println("-------------------->\n"+noteCardAdapter.getDataSet().get(i));
             Note n = noteCardAdapter.getNote(i);
             if(noteCardAdapter.getDataSet().get(i).isSelected()){
                 noteCardAdapter.removeNote(i);
@@ -393,7 +340,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         }
     }
-
+    //cambia colore alle note selezionate
     public void changeColorOnSelectedNotes(int color){
         for (int i = 0; i< noteCardAdapter.getDataSet().size();i++){
             Note n = noteCardAdapter.getNote(i);
@@ -404,14 +351,4 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
         noteCardAdapter.notifyDataSetChanged();
     }
-
-    @Override
-    public boolean onKeyDown( int keyCode, KeyEvent event )  {
-        noteCardAdapter.flag = false;
-        noteCardAdapter.count = 0;
-        noteCardAdapter.deselectAllNotes();
-
-        return super.onKeyDown( keyCode, event );
-    }
-
 }
