@@ -220,6 +220,8 @@ public class NoteCardAdapter extends RecyclerView.Adapter<NoteCardAdapter.NoteCa
                 callback = ((MainActivity) context).mActionModeCallback;
                 if (MainActivity.mActionMode != null) {
                     MainActivity.mActionMode.setTitle("" + count);
+                    //MainActivity.mActionMode.getCustomView().setBackgroundColor(((MainActivity) context).getResources().getColor(R.color.colorPrimary));
+
                     return false;
                 }
                 MainActivity.mActionMode = ((MainActivity) v.getContext()).startSupportActionMode(callback);
@@ -251,7 +253,11 @@ public class NoteCardAdapter extends RecyclerView.Adapter<NoteCardAdapter.NoteCa
                 if(note.isSelected())
                     count++;
                 else count --;
-                if(MainActivity.mActionMode!=null) MainActivity.mActionMode.setTitle(""+count);
+                if(MainActivity.mActionMode!=null) {
+                    //MainActivity.mActionMode.getCustomView().setBackgroundColor(((MainActivity) context).getResources().getColor(R.color.colorPrimary));
+
+                    MainActivity.mActionMode.setTitle(""+count);
+                }
                 if(count == 0) {
                     if(MainActivity.mActionMode!=null){ MainActivity.mActionMode.finish();}
                     flag = false;

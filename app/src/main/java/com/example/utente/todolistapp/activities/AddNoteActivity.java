@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.view.ViewCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.KeyEvent;
@@ -34,6 +35,7 @@ public class AddNoteActivity extends AppCompatActivity implements DatePickerDial
     Calendar calendar ;
     int Year, Month, Day ;
     DatePickerDialog datePickerDialog ;
+    ColorPickerDialog colorPickerDialog;
 
     String position;
     boolean isSpecial;
@@ -49,7 +51,6 @@ public class AddNoteActivity extends AppCompatActivity implements DatePickerDial
     @Override
     public void onStart(){
         super.onStart();
-        colors = getResources().getIntArray(R.array.items);
     }
     //azione sul back button
     @Override
@@ -68,7 +69,7 @@ public class AddNoteActivity extends AppCompatActivity implements DatePickerDial
 
         //creazione toolbar
         toolbar = (Toolbar) findViewById(R.id.toolbar_layout);
-        toolbar.setElevation(50);
+        //toolbar.setElevation(50);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
@@ -81,6 +82,12 @@ public class AddNoteActivity extends AppCompatActivity implements DatePickerDial
         txt_color = (EditText) findViewById(R.id.txt_color);
         txt_edited_date = (TextView) findViewById(R.id.edited_date_note);
         txt_color.setText("-1");
+
+        //dialog colori
+        colors = getResources().getIntArray(R.array.items);
+        colorPickerDialog = new ColorPickerDialog();
+        colorPickerDialog.initialize(
+                R.string.app_name, colors, R.color.colorAccent, 4, colors.length);
 
         //gestione intent implicito
         Intent intent = getIntent();
@@ -97,16 +104,18 @@ public class AddNoteActivity extends AppCompatActivity implements DatePickerDial
                 isSpecial = Boolean.valueOf(intent.getStringExtra("isSpecial"));
                 state = intent.getStringExtra("state");
                 int c = Integer.valueOf(intent.getStringExtra("color"));
-
+                colorPickerDialog.setSelectedColor(Integer.parseInt(txt_color.getText().toString()));
                 txt_body.getRootView().setBackgroundColor(c);
                 //txt_body.getRootView().getBackground().setAlpha(80);
                 toolbar.setBackgroundColor(c);
                 //toolbar.getBackground().setAlpha(80);
                 //colore toolbar
+                /*
                 Window window = ((AddNoteActivity)txt_body.getContext()).getWindow();
                 window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
                 window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
                 window.setStatusBarColor(ContextCompat.getColor(((AddNoteActivity)txt_body.getContext()), R.color.mdtp_transparent_black));
+                */
             }
             else{
                 //gestione intent da app esterna
@@ -114,6 +123,8 @@ public class AddNoteActivity extends AppCompatActivity implements DatePickerDial
                 txt_body.setText(intent.getStringExtra("body"));
             }
         }
+
+
         //inizializzazione oggetti calendario
         calendar = Calendar.getInstance();
         Year = calendar.get(Calendar.YEAR) ;
@@ -197,23 +208,24 @@ public class AddNoteActivity extends AppCompatActivity implements DatePickerDial
     }
 
     public void createColorPickerDialog(){
-        final ColorPickerDialog colorPickerDialog = new ColorPickerDialog();
-        colorPickerDialog.initialize(
-                R.string.app_name, colors, R.color.colorAccent, 4, colors.length);
+
+
         colorPickerDialog.setOnColorSelectedListener(new ColorPickerSwatch.OnColorSelectedListener() {
             @Override
             public void onColorSelected(int color) {
                 txt_body.getRootView().setBackgroundColor(color);
                 toolbar.setBackgroundColor(color);
                 //toolbar.getBackground().setAlpha(80);
-                toolbar.setElevation(50);
+
+                //toolbar.setElevation(50);
+                ViewCompat.setElevation(toolbar, 50);
                 colorPickerDialog.setSelectedColor(color);
                 txt_color.setText(""+color);
 
-                Window window = ((AddNoteActivity)txt_body.getContext()).getWindow();
+                /*Window window = ((AddNoteActivity)txt_body.getContext()).getWindow();
                 window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
                 window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-                window.setStatusBarColor(ContextCompat.getColor(txt_body.getContext(), R.color.mdtp_transparent_black));
+                window.setStatusBarColor(ContextCompat.getColor(txt_body.getContext(), R.color.mdtp_transparent_black));*/
             }
         });
 
